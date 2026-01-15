@@ -1,0 +1,152 @@
+# Copyright 2026 The Chromium Authors
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("//build/config/features.gni")
+
+# MCP Server - AI Agent Control Server
+# Provides localhost HTTP/WebSocket APIs for programmatic browser control
+source_set("mcp_server") {
+  sources = [
+    "mcp_server.cc",
+    "mcp_server.h",
+    "mcp_server_prefs.cc",
+    "mcp_server_prefs.h",
+  ]
+
+  deps = [
+    ":accessibility_snapshot",
+    ":action_runner",
+    ":dispatcher",
+    ":tab_controller",
+    "//base",
+    "//chrome/browser/ui",
+    "//chrome/common:constants",
+    "//components/pref_registry",
+    "//components/prefs",
+    "//content/public/browser",
+    "//net",
+    "//net:net",
+  ]
+}
+
+# Accessibility Snapshot - LLM-friendly page structure
+source_set("accessibility_snapshot") {
+  sources = [
+    "accessibility_snapshot/accessibility_snapshot.cc",
+    "accessibility_snapshot/accessibility_snapshot.h",
+  ]
+
+  deps = [
+    "//base",
+    "//content/public/browser",
+    "//ui/accessibility",
+  ]
+}
+
+# Dispatcher component - API routing and request handling
+source_set("dispatcher") {
+  sources = [
+    "dispatcher/dispatcher.cc",
+    "dispatcher/dispatcher.h",
+  ]
+
+  deps = [
+    ":accessibility_snapshot",
+    ":action_runner",
+    ":tab_controller",
+    "//base",
+    "//chrome/browser/ui",
+    "//content/public/browser",
+  ]
+}
+
+# Tab Controller - Tab management APIs
+source_set("tab_controller") {
+  sources = [
+    "tab_controller/tab_controller.cc",
+    "tab_controller/tab_controller.h",
+  ]
+
+  deps = [
+    "//base",
+    "//chrome/browser/ui",
+    "//content/public/browser",
+    "//url",
+  ]
+}
+
+# Action Runner - UI interaction engine
+source_set("action_runner") {
+  sources = [
+    "action_runner/action_runner.cc",
+    "action_runner/action_runner.h",
+  ]
+
+  deps = [
+    "//base",
+    "//content/public/browser",
+  ]
+}
+
+# DOM Query - DOM walker and extractor
+source_set("dom_query") {
+  sources = [
+    "dom_query/dom_query.cc",
+    "dom_query/dom_query.h",
+  ]
+
+  deps = [
+    ":mcp_server",
+    "//base",
+    "//content/public/browser",
+  ]
+}
+
+# Log Collector - Console log monitoring
+source_set("log_collector") {
+  sources = [
+    "log_collector/log_collector.cc",
+    "log_collector/log_collector.h",
+  ]
+
+  deps = [
+    ":mcp_server",
+    "//base",
+    "//content/public/browser",
+  ]
+}
+
+# Network Tracer - Network request monitoring
+source_set("network_tracer") {
+  sources = [
+    "network_tracer/network_tracer.cc",
+    "network_tracer/network_tracer.h",
+  ]
+
+  deps = [
+    ":mcp_server",
+    "//base",
+    "//content/public/browser",
+    "//net",
+  ]
+}
+
+# Unit tests
+source_set("unit_tests") {
+  testonly = true
+
+  sources = [
+    "mcp_server_unittest.cc",
+  ]
+
+  deps = [
+    ":mcp_server",
+    "//base",
+    "//base/test:test_support",
+    "//chrome/common:constants",
+    "//components/prefs:test_support",
+    "//content/test:test_support",
+    "//testing/gtest",
+  ]
+}

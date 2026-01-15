@@ -39,6 +39,7 @@
 #include "chrome/browser/media/webrtc/capture_policy_utils.h"
 #include "chrome/browser/media/webrtc/media_capture_devices_dispatcher.h"
 #include "chrome/browser/media/webrtc/permission_bubble_media_access_handler.h"
+#include "chrome/browser/mcp_server/mcp_server_prefs.h"
 #include "chrome/browser/memory/enterprise_memory_limit_pref_observer.h"
 #include "chrome/browser/metrics/chrome_metrics_service_client.h"
 #include "chrome/browser/metrics/tab_stats/tab_stats_tracker.h"
@@ -1362,6 +1363,7 @@ void RegisterLocalState(PrefRegistrySimple* registry) {
   invalidation::PerUserTopicSubscriptionManager::RegisterPrefs(registry);
   language::GeoLanguageProvider::RegisterLocalStatePrefs(registry);
   language::UlpLanguageCodeLocator::RegisterLocalStatePrefs(registry);
+  mcp_server::RegisterLocalStatePrefs(registry);
   memory::EnterpriseMemoryLimitPrefObserver::RegisterPrefs(registry);
   metrics::RegisterDemographicsLocalStatePrefs(registry);
   metrics::TabStatsTracker::RegisterPrefs(registry);
@@ -1418,6 +1420,10 @@ void RegisterLocalState(PrefRegistrySimple* registry) {
                                 true);
   registry->RegisterBooleanPref(policy::policy_prefs::kReadAloudEnabled, true);
 #endif  // BUILDFLAG(IS_ANDROID)
+
+  // MCP Server preferences
+  registry->RegisterBooleanPref(prefs::kMCPServerEnabled, false);
+  registry->RegisterIntegerPref(prefs::kMCPServerPort, 9224);
 
   // Below this point is for platform-specific and compile-time conditional
   // calls. Please follow the helper-function-first-then-direct-calls pattern
@@ -1678,6 +1684,7 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
   media_device_salt::MediaDeviceIDSalt::RegisterProfilePrefs(registry);
   MediaEngagementService::RegisterProfilePrefs(registry);
   MediaStorageIdSalt::RegisterProfilePrefs(registry);
+  // MCP Server uses local_state prefs (browser-wide), not profile prefs
   metrics::RegisterDemographicsProfilePrefs(registry);
   NotificationDisplayServiceImpl::RegisterProfilePrefs(registry);
   NotifierStateTracker::RegisterProfilePrefs(registry);
